@@ -1,6 +1,7 @@
 from sqlmodel import DateTime, SQLModel, Field
 from datetime import datetime
 from sqlalchemy import Column, text
+from pydantic import EmailStr
 
 
 class PostBase(SQLModel):
@@ -35,14 +36,14 @@ class PostUpdate(PostBase):
 
 
 class UserBase(SQLModel):
-    email: str = Field(unique=True)
+    email: EmailStr = Field(unique=True)
     password: str
 
 
 class UserPublic(SQLModel):
     id: int
     created_at: datetime
-    email: str
+    email: EmailStr
 
 
 class CreateUser(UserBase):
@@ -50,7 +51,7 @@ class CreateUser(UserBase):
 
 
 class UserUpdate(UserBase):
-    email: str | None = None
+    email: EmailStr | None = None
     password: str | None = None
 
 
