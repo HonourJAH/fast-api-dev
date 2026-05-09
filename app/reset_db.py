@@ -1,7 +1,7 @@
-# reset_db.py
 from sqlmodel import SQLModel
 from app.database import engine
-from app.schemas import post_schema, user_schema
+from app.models.user_models import User
+from app.models.post_models import Post
 
 SQLModel.metadata.drop_all(engine)
 SQLModel.metadata.create_all(engine)

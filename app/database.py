@@ -2,6 +2,9 @@ from typing import Annotated
 from fastapi import Depends
 from sqlmodel import Session, SQLModel, create_engine
 
+from app.models.user_models import User
+from app.models.post_models import Post
+
 from dotenv import load_dotenv
 import os
 

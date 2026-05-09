@@ -1,5 +1,7 @@
-from sqlmodel import SQLModel
+from sqlmodel import Relationship, SQLModel, DateTime, Field
 from datetime import datetime
+from sqlalchemy import Column, text
+from app.models.user_models import User, UserPublic
 
 
 class PostBase(SQLModel):
@@ -9,9 +11,32 @@ class PostBase(SQLModel):
     rating: float | None = None
 
 
+class Post(PostBase, table=True):
+    id: int | None = Field(default=None, primary_key=True)
+    created_at: datetime = Field(
+        sa_column=Column(
+            DateTime(timezone=True),
+            server_default=text("now()"),  # ← wrap in text()
+            nullable=False,
+        )
+    )
+    user_id: int = Field(foreign_key="user.id")
+    owner: "User" = Relationship(back_populates="posts")
+
+
 class PostPublic(PostBase):
     id: int
     created_at: datetime
+    user_id: int
+
+
+class PostWithOwner(PostPublic):
+    owner: UserPublic
+
+
+class PostsWithOwnerResponse(SQLModel):
+    results: int
+    data: list[PostWithOwner]
 
 
 class PostsResponse(SQLModel):

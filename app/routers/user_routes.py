@@ -1,10 +1,17 @@
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, HTTPException, status, Depends
 from sqlmodel import select
 
 from app.database import SessionDep
-from app.models.user_models import CreateUser, UserPublic, UserUpdate, UsersResponse
-from app.schemas.user_schema import User
+from app.models.user_models import (
+    User,
+    CreateUser,
+    UserInDB,
+    UserPublic,
+    UserUpdate,
+    UsersResponse,
+)
 from app import utils
+from app.routers.authentication import get_current_user
 
 router = APIRouter(tags=["Users"])
 
@@ -27,7 +34,11 @@ def create_user(user: CreateUser, session: SessionDep):
 
 
 @router.get("/users/{user_id}", response_model=UserPublic)
-def get_user(user_id: int, session: SessionDep):
+def get_user(
+    user_id: int,
+    session: SessionDep,
+    current_user: UserInDB = Depends(get_current_user),
+):
     user = session.get(User, user_id)
     if not user:
         raise HTTPException(
@@ -37,7 +48,10 @@ def get_user(user_id: int, session: SessionDep):
 
 
 @router.get("/users", response_model=UsersResponse)
-def get_all_users(session: SessionDep):
+def get_all_users(
+    session: SessionDep,
+    current_user: UserInDB = Depends(get_current_user),
+):
     users = session.exec(select(User)).all()
     if not users:
         raise HTTPException(
@@ -47,7 +61,11 @@ def get_all_users(session: SessionDep):
 
 
 @router.delete("/users/{user_id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_user(user_id: int, session: SessionDep):
+def delete_user(
+    user_id: int,
+    session: SessionDep,
+    current_user: UserInDB = Depends(get_current_user),
+):
     user_db = session.get(User, user_id)
     if not user_db:
         raise HTTPException(
@@ -59,7 +77,12 @@ def delete_user(user_id: int, session: SessionDep):
 
 
 @router.patch("/users/{user_id}", response_model=UserPublic)
-def update_user(user_id: int, user: UserUpdate, session: SessionDep):
+def update_user(
+    user_id: int,
+    user: UserUpdate,
+    session: SessionDep,
+    current_user: UserInDB = Depends(get_current_user),
+):
     user_db = session.get(User, user_id)
     if not user_db:
         raise HTTPException(
