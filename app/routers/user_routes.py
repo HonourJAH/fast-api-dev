@@ -50,7 +50,7 @@ def get_user(
 @router.get("/users", response_model=UsersResponse)
 def get_all_users(
     session: SessionDep,
-    current_user: UserInDB = Depends(get_current_user),
+    # current_user: UserInDB = Depends(get_current_user),
 ):
     users = session.exec(select(User)).all()
     if not users:

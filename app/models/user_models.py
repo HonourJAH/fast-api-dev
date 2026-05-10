@@ -26,9 +26,13 @@ class User(UserBase, table=True):
     posts: list["Post"] = Relationship(back_populates="owner")
 
 
+# class UserPublic(SQLModel):
+#     id: int
+#     created_at: datetime
+#     email: EmailStr
+
+
 class UserPublic(SQLModel):
-    id: int
-    created_at: datetime
     email: EmailStr
 
 
@@ -62,4 +66,3 @@ class TokenData(SQLModel):
 
 class UserInDB(UserBase):
     id: int
-    hashed_password: str

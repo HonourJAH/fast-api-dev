@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status
-from sqlmodel import select
+from sqlmodel import select, func
+from app.models.user_models import User, UserPublic
 
 from app.database import SessionDep
 from app.models.post_models import (
@@ -7,11 +8,14 @@ from app.models.post_models import (
     PostCreate,
     PostPublic,
     PostUpdate,
+    PostWithOwner,
     PostsWithOwnerResponse,
 )
 
 from app.models.user_models import UserInDB
 from app.routers.authentication import get_current_user
+
+from app.models.vote_models import Vote
 
 router = APIRouter(tags=["Posts"])
 
@@ -30,26 +34,45 @@ def create_post(
     return post
 
 
-# GET POST
-@router.get("/posts/{post_id}", response_model=PostPublic)
-def get_post(
-    post_id: int,
-    session: SessionDep,
-    current_user: UserInDB = Depends(get_current_user),
-):
-    # post = session.get(Post, post_id)
-    post = session.exec(
-        select(Post).where(Post.id == post_id, Post.user_id == current_user.id)
+# # GET POST
+# @router.get("/posts/{post_id}", response_model=PostPublic)
+# def get_post(
+#     post_id: int,
+#     session: SessionDep,
+#     current_user: UserInDB = Depends(get_current_user),
+# ):
+#     # post = session.get(Post, post_id)
+#     post = session.exec(
+#         select(Post).where(Post.id == post_id, Post.user_id == current_user.id)
+#     ).first()
+
+#     if not post:
+#         raise HTTPException(
+#             status_code=status.HTTP_404_NOT_FOUND, detail="Post not found"
+#         )
+#     return post
+
+
+# GET SINGLE POST
+@router.get("/post/{post_id}", response_model=PostPublic)
+def get_post(post_id: int, session: SessionDep):
+    result = session.exec(
+        select(Post, func.count(Vote.post_id).label("votes"))
+        .outerjoin(Vote, Vote.post_id == Post.id)
+        .where(Post.id == post_id)
+        .group_by(Post.id)
     ).first()
 
-    if not post:
+    if not result:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="Post not found"
         )
-    return post
+
+    post, vote_count = result
+    return PostPublic(**post.model_dump(), votes=vote_count)
 
 
-# GET ALL POSTS
+# # GET ALL POSTS
 @router.get("/posts", response_model=PostsWithOwnerResponse)
 def get_all_posts(
     session: SessionDep,
@@ -58,17 +81,32 @@ def get_all_posts(
     skip: int = 0,
     search: str | None = None,
 ):
-    query = select(Post)
+    query = (
+        select(Post, User, func.count(Vote.post_id).label("votes"))
+        .join(User, User.id == Post.user_id)  # ← join User to get owner
+        .outerjoin(Vote, Vote.post_id == Post.id)
+        .group_by(Post.id, User.id)  # ← group by both
+    )
 
     if search:
         query = query.where(Post.title.contains(search))
 
-    posts = session.exec(query.limit(limit).offset(skip)).all()
+    results = session.exec(query.limit(limit).offset(skip)).all()
 
-    if not posts:
+    if not results:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="No posts found"
         )
+
+    posts = [
+        PostWithOwner(
+            **post.model_dump(),
+            votes=vote_count,
+            owner=UserPublic.model_validate(user.model_dump())
+        )
+        for post, user, vote_count in results
+    ]
+
     return PostsWithOwnerResponse(results=len(posts), data=posts)
 
 

@@ -35,7 +35,7 @@ def get_user(email: str, session: SessionDep):
         )
     user_dict = user.model_dump()
 
-    return UserInDB(**user_dict, hashed_password=user.password)
+    return UserInDB(**user_dict)
 
 
 async def get_current_user(

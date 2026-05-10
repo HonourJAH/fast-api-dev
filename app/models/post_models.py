@@ -25,9 +25,9 @@ class Post(PostBase, table=True):
 
 
 class PostPublic(PostBase):
-    id: int
     created_at: datetime
     user_id: int
+    votes: int = 0
 
 
 class PostWithOwner(PostPublic):
