@@ -2,6 +2,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from app.database import create_db_and_tables
 from app.routers import post_routes, user_routes, authentication, vote_routes
+from fastapi.middleware.cors import CORSMiddleware
 
 
 @asynccontextmanager
@@ -11,6 +12,26 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(lifespan=lifespan)
+
+
+app = FastAPI()
+
+# origins = [
+#     "http://localhost.tiangolo.com",
+#     "https://localhost.tiangolo.com",
+#     "http://localhost",
+#     "http://localhost:8080",
+# ]
+
+origins = ["*"]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 app.include_router(post_routes.router)
 app.include_router(user_routes.router)
