@@ -17,16 +17,16 @@ config = context.config
 
 
 # get and fix the DATABASE_URL
-DATABASE_URL = os.getenv("DATABASE_URL")
-if DATABASE_URL and DATABASE_URL.startswith("postgres://"):
-    DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
+# DATABASE_URL = os.getenv("DATABASE_URL")
+# if DATABASE_URL and DATABASE_URL.startswith("postgres://"):
+#     DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
 
 # set the fixed URL
-config.set_main_option("sqlalchemy.url", DATABASE_URL)
+# config.set_main_option("sqlalchemy.url", DATABASE_URL)
 
 
 # set the database URL from .env
-# config.set_main_option("sqlalchemy.url", os.getenv("DATABASE_URL"))
+config.set_main_option("sqlalchemy.url", os.getenv("DATABASE_URL"))
 
 # configure logging
 if config.config_file_name is not None:

@@ -28,6 +28,7 @@ class PostPublic(PostBase):
     created_at: datetime
     user_id: int
     votes: int = 0
+    id: int
 
 
 class PostWithOwner(PostPublic):

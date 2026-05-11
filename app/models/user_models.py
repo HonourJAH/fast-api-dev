@@ -26,10 +26,10 @@ class User(UserBase, table=True):
     posts: list["Post"] = Relationship(back_populates="owner")
 
 
-# class UserPublic(SQLModel):
-#     id: int
-#     created_at: datetime
-#     email: EmailStr
+class UserPublicAll(SQLModel):
+    id: int
+    created_at: datetime
+    email: EmailStr
 
 
 class UserPublic(SQLModel):
@@ -47,7 +47,7 @@ class UserUpdate(UserBase):
 
 class UsersResponse(SQLModel):
     results: int
-    data: list[UserPublic]
+    data: list[UserPublicAll]
 
 
 class UserLogin(SQLModel):

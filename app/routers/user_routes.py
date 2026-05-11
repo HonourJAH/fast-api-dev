@@ -7,6 +7,7 @@ from app.models.user_models import (
     CreateUser,
     UserInDB,
     UserPublic,
+    UserPublicAll,
     UserUpdate,
     UsersResponse,
 )
@@ -16,7 +17,7 @@ from app.routers.authentication import get_current_user
 router = APIRouter(tags=["Users"])
 
 
-@router.post("/user", status_code=status.HTTP_201_CREATED, response_model=UserPublic)
+@router.post("/user", status_code=status.HTTP_201_CREATED, response_model=UserPublicAll)
 def create_user(user: CreateUser, session: SessionDep):
     hashed_password = utils.hash_password(user.password)
     user.password = hashed_password
