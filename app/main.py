@@ -6,7 +6,7 @@ from app.routers import post_routes, user_routes, authentication, vote_routes
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    create_db_and_tables()
+    # create_db_and_tables()
     yield
 
 

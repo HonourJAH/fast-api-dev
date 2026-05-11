@@ -83,9 +83,9 @@ def get_all_posts(
 ):
     query = (
         select(Post, User, func.count(Vote.post_id).label("votes"))
-        .join(User, User.id == Post.user_id)  # ← join User to get owner
+        .join(User, User.id == Post.user_id)
         .outerjoin(Vote, Vote.post_id == Post.id)
-        .group_by(Post.id, User.id)  # ← group by both
+        .group_by(Post.id, User.id)
     )
 
     if search:
