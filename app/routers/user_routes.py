@@ -38,7 +38,7 @@ def create_user(user: CreateUser, session: SessionDep):
 def get_user(
     user_id: int,
     session: SessionDep,
-    current_user: UserInDB = Depends(get_current_user),
+    # current_user: UserInDB = Depends(get_current_user),
 ):
     user = session.get(User, user_id)
     if not user:
