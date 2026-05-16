@@ -21,7 +21,7 @@ router = APIRouter(tags=["Posts"])
 
 
 # CREATE POST
-@router.post("/post", status_code=status.HTTP_201_CREATED, response_model=PostPublic)
+@router.post("/posts", status_code=status.HTTP_201_CREATED, response_model=PostPublic)
 def create_post(
     post: PostCreate,
     session: SessionDep,
@@ -34,28 +34,10 @@ def create_post(
     return post
 
 
-# # GET POST
-# @router.get("/posts/{post_id}", response_model=PostPublic)
-# def get_post(
-#     post_id: int,
-#     session: SessionDep,
-#     current_user: UserInDB = Depends(get_current_user),
-# ):
-#     # post = session.get(Post, post_id)
-#     post = session.exec(
-#         select(Post).where(Post.id == post_id, Post.user_id == current_user.id)
-#     ).first()
-
-#     if not post:
-#         raise HTTPException(
-#             status_code=status.HTTP_404_NOT_FOUND, detail="Post not found"
-#         )
-#     return post
-
-
 # GET SINGLE POST
-@router.get("/post/{post_id}", response_model=PostPublic)
+@router.get("/posts/{post_id}", response_model=PostPublic)
 def get_post(post_id: int, session: SessionDep):
+
     result = session.exec(
         select(Post, func.count(Vote.post_id).label("votes"))
         .outerjoin(Vote, Vote.post_id == Post.id)
@@ -76,7 +58,7 @@ def get_post(post_id: int, session: SessionDep):
 @router.get("/posts", response_model=PostsWithOwnerResponse)
 def get_all_posts(
     session: SessionDep,
-    current_user: UserInDB = Depends(get_current_user),
+    # current_user: UserInDB = Depends(get_current_user),
     limit: int = 10,
     skip: int = 0,
     search: str | None = None,

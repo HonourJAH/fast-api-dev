@@ -17,7 +17,9 @@ from app.routers.authentication import get_current_user
 router = APIRouter(tags=["Users"])
 
 
-@router.post("/user", status_code=status.HTTP_201_CREATED, response_model=UserPublicAll)
+@router.post(
+    "/users", status_code=status.HTTP_201_CREATED, response_model=UserPublicAll
+)
 def create_user(user: CreateUser, session: SessionDep):
     hashed_password = utils.hash_password(user.password)
     user.password = hashed_password
@@ -25,7 +27,7 @@ def create_user(user: CreateUser, session: SessionDep):
 
     if session.exec(select(User).where(User.email == user.email)).first():
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
+            status_code=status.HTTP_409_CONFLICT,
             detail="There's already a user with that email. Please choose another email",
         )
     session.add(user)
@@ -93,7 +95,7 @@ def update_user(
     if "email" in user_data:
         if session.exec(select(User).where(User.email == user_data["email"])).first():
             raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
+                status_code=status.HTTP_409_CONFLICT,
                 detail="There's already a user with that email. Please choose another email",
             )
     user_db.sqlmodel_update(user_data)

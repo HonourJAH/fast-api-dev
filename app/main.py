@@ -7,7 +7,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # create_db_and_tables()
+    create_db_and_tables()
     yield
 
 
@@ -15,13 +15,6 @@ app = FastAPI(lifespan=lifespan)
 
 
 app = FastAPI()
-
-# origins = [
-#     "http://localhost.tiangolo.com",
-#     "https://localhost.tiangolo.com",
-#     "http://localhost",
-#     "http://localhost:8080",
-# ]
 
 origins = ["*"]
 

@@ -1,5 +1,5 @@
 from sqlmodel import Relationship, SQLModel, DateTime, Field
-from datetime import datetime
+from datetime import datetime, timezone
 from sqlalchemy import Column, text
 from app.models.user_models import User, UserPublic
 
@@ -13,13 +13,14 @@ class PostBase(SQLModel):
 
 class Post(PostBase, table=True):
     id: int | None = Field(default=None, primary_key=True)
-    created_at: datetime = Field(
-        sa_column=Column(
-            DateTime(timezone=True),
-            server_default=text("now()"),  # ← wrap in text()
-            nullable=False,
-        )
-    )
+    # created_at: datetime = Field(
+    #     sa_column=Column(
+    #         DateTime(timezone=True),
+    #         default_factory=lambda: datetime.now(timezone.utc),
+    #         nullable=False,
+    #     )
+    # )
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     user_id: int = Field(foreign_key="user.id")
     owner: "User" = Relationship(back_populates="posts")
 

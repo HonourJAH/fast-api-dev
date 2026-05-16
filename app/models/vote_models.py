@@ -1,15 +1,16 @@
 from sqlmodel import SQLModel, Field
-from datetime import datetime
+from datetime import datetime, timezone
 from sqlalchemy import Column, DateTime, text
 
 
 class Vote(SQLModel, table=True):
     user_id: int = Field(foreign_key="user.id", primary_key=True)
     post_id: int = Field(foreign_key="post.id", primary_key=True)
-    created_at: datetime = Field(
-        sa_column=Column(
-            DateTime(timezone=True),
-            server_default=text("now()"),
-            nullable=False,
-        )
-    )
+    # created_at: datetime = Field(
+    #     sa_column=Column(
+    #         DateTime(timezone=True),
+    #         default_factory=lambda: datetime.now(timezone.utc),
+    #         nullable=False,
+    #     )
+    # )
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
